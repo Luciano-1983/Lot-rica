@@ -2,6 +2,8 @@ package br.faccat.sistdist.springbootrestapi.controller;
 
 import java.util.List;
 import java.util.Optional;
+import br.faccat.sistdist.springbootrestapi.entity.Resultado; // Add this import if Resultado is an existing class in your project
+import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -10,15 +12,21 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.faccat.sistdist.springbootrestapi.entity.Aposta;
 import br.faccat.sistdist.springbootrestapi.repository.ApostaRepository;
+import br.faccat.sistdist.springbootrestapi.repository.ResultadoRepository;
 
 @RestController
+//@RequestMapping("/aposta")
 public class ApostaController {
     @Autowired
     private ApostaRepository _apostaRepository;
+
+    @Autowired
+    private ResultadoRepository resultadoRepository; // Add this line to declare and inject resultadoRepository
 
     // Endpoint para listar todas as apostas
     @RequestMapping(value = "/aposta", method = RequestMethod.GET)
@@ -65,5 +73,29 @@ public class ApostaController {
             return new ResponseEntity<>(HttpStatus.OK);
         } else
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
+    // Endpoint para realizar o sorteio
+    @PostMapping("/sorteio")
+    public ResponseEntity<Resultado> realizarSorteio() {
+        // Lógica para realizar o sorteio
+        Random random = new Random();
+        int numeroSorteado = random.nextInt(100) + 1; // Sorteio de um número entre 1 e 100
+
+        // Criar o objeto Resultado para armazenar o número sorteado e os acertadores
+        Resultado resultado = new Resultado();
+        resultado.setNumeroSorteado(numeroSorteado);
+
+        // Validar as apostas e encontrar os acertadores
+        List<Aposta> apostas = _apostaRepository.findAll();
+        apostas.stream()
+                .filter(aposta -> aposta.getNumero() == numeroSorteado)
+                .forEach(aposta -> resultado.getAcertadores().add(aposta));
+
+        // Salvar o resultado no banco de dados
+        resultadoRepository.save(resultado);
+
+        // Retornar o resultado do sorteio
+        return new ResponseEntity<>(resultado, HttpStatus.OK);
     }
 }
