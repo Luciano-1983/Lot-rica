@@ -20,8 +20,9 @@ import br.faccat.sistdist.springbootrestapi.repository.ApostaRepository;
 import br.faccat.sistdist.springbootrestapi.repository.ResultadoRepository;
 
 @RestController
-//@RequestMapping("/aposta")
+// @RequestMapping("/aposta")
 public class ApostaController {
+
     @Autowired
     private ApostaRepository _apostaRepository;
 
@@ -76,7 +77,7 @@ public class ApostaController {
     }
 
     // Endpoint para realizar o sorteio
-    @PostMapping("/sorteio")
+    @PostMapping("/aposta/sorteio")
     public ResponseEntity<Resultado> realizarSorteio() {
         // Lógica para realizar o sorteio
         Random random = new Random();
