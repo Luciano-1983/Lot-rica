@@ -99,4 +99,29 @@ public class ApostaController {
         // Retornar o resultado do sorteio
         return new ResponseEntity<>(resultado, HttpStatus.OK);
     }
+
+    // Endpoint para listar numeros sorteio
+    @RequestMapping(value = "/aposta/sorteio", method = RequestMethod.GET)
+    public ResponseEntity<List<Resultado>> listarResultados() {
+        List<Resultado> resultados = resultadoRepository.findAll();
+        if (resultados.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+        return new ResponseEntity<>(resultados, HttpStatus.OK);
+    }
+
+    // Endpoint para listar ganhadores
+    @RequestMapping(value = "/aposta/sorteio/{id}/ganhadores", method = RequestMethod.GET)
+    public ResponseEntity<List<Aposta>> listarGanhadores(@PathVariable(value = "id") Long id) {
+        Optional<Resultado> resultado = resultadoRepository.findById(id);
+        if (resultado.isPresent()) {
+            List<Aposta> ganhadores = resultado.get().getAcertadores();
+            if (ganhadores.isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
+            return new ResponseEntity<>(ganhadores, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
 }
